@@ -1,9 +1,6 @@
-import {obfuscate} from 'javascript-obfuscator'
-import {readFileSync} from 'fs-extra'
-import {resolve} from 'path'
 import tsBuild from 'ts-node-build'
-import {create} from 'ts-node'
-import {buildSync} from 'esbuild'
+import {build, buildSync} from 'esbuild'
+import {resolve} from 'path'
 new tsBuild({
     inputFiles:[
         "src/*",
@@ -12,27 +9,25 @@ new tsBuild({
     ],
     rules:[
         {
-            rule:/\.ts$/,
-            transform({code, targetFileParse:{name,ext}, file, targetFilePath}): Promise<string | void> | string | void {
-                try {
-                    const resCode = create({
-                        compilerOptions:{
-                            sourceMap:false
-                        }
-                    }).compile(code, name+ext)
-                    console.log(buildSync({
-                        entryPoints:[file],
-                        // outfile:resolve(targetFilePath, '..', `${name}.js`),
-                        bundle:true,
-                        minify:true,
-                        tsconfig:"tsconfig.json"
-                    }).outputFiles)
-                    return code
-                }catch (e){
-                    console.error(e)
-                    return  code
-                }
-
+            rule:/index\.ts$/,
+            outFileName:"[name].js",
+            transform({ file, targetFileParse:{name}, targetFilePathDir}): Promise<string | void> | string | void {
+                buildSync({
+                    entryPoints:[file],
+                    outfile:resolve(targetFilePathDir, name+'.mjs'),
+                    bundle:true,
+                    minify:true,
+                    format:"esm",
+                })
+                return build({
+                    entryPoints:[file],
+                    bundle:true,
+                    minify:true,
+                    write:false,
+                    platform:"node",
+                }).then(res=>{
+                    return res.outputFiles[0].text
+                })
             }
         },
         {
@@ -43,6 +38,7 @@ new tsBuild({
                 delete codeData.scripts
                 delete codeData.dependencies
                 codeData.main = "src/index.js"
+                codeData.module = "src/index.mjs"
                 return JSON.stringify(codeData, null, 4)
             }
         }
