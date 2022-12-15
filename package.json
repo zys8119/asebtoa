@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ts-node unit_test/index.ts"
+    "test": "ts-node unit_test/index.ts",
+    "build": "ts-node build/index.ts"
   },
   "repository": {
     "type": "git",
@@ -17,8 +18,14 @@
   },
   "homepage": "https://github.com/zys8119/asebtoa#readme",
   "dependencies": {
+    "crypto-js": "^4.1.1"
+  },
+  "devDependencies": {
     "@types/crypto-js": "^4.1.1",
-    "crypto-js": "^4.1.1",
-    "ts-node": "^10.9.1"
+    "@types/fs-extra": "^9.0.13",
+    "esbuild": "^0.16.7",
+    "javascript-obfuscator": "^4.0.0",
+    "ts-node": "^10.9.1",
+    "ts-node-build": "^0.1.2"
   }
 }
