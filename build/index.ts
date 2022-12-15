@@ -13,8 +13,7 @@ new tsBuild({
     rules:[
         {
             rule:/\.ts$/,
-            outFileName:"[name].js",
-            transform({code, targetFileParse:{name,ext}, file}): Promise<string | void> | string | void {
+            transform({code, targetFileParse:{name,ext}, file, targetFilePath}): Promise<string | void> | string | void {
                 try {
                     const resCode = create({
                         compilerOptions:{
@@ -23,10 +22,11 @@ new tsBuild({
                     }).compile(code, name+ext)
                     console.log(buildSync({
                         entryPoints:[file],
+                        // outfile:resolve(targetFilePath, '..', `${name}.js`),
                         bundle:true,
                         minify:true,
                         tsconfig:"tsconfig.json"
-                    }))
+                    }).outputFiles)
                     return code
                 }catch (e){
                     console.error(e)
